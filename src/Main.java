@@ -35,13 +35,12 @@ public class Main {
 
         Graph graph = new Graph(vertices);
         graph.print_graph();
-        System.out.println("- Number red vertex in this graph: "+graph.get_nb_red_vertex()+"\n");
+        System.out.println("- Number red vertex in this graph: "+graph.get_nb_red_vertex()+ " of "+ graph.get_nb_vertex()+ " in total" + "\n");
         int k = graph.resolve_heuristic_v2();
-        System.out.println("- Number red vertex in this graph: "+graph.get_nb_red_vertex()+ "Number of red vertex taken out: " + k +"\n");
+        System.out.println("- Number red vertex in this graph: "+graph.get_nb_red_vertex()+ " of "+ graph.get_nb_vertex()+ " in total" + "\n");
+        System.out.println("Number of red vertex removed: " + k +"\n");
 
 //        System.out.println("Score of v1:" + v1.getScore());
-//        System.out.println("Score of v2:" + v2.getScore());
-//        System.out.println("Score of v3:" + v3.getScore());
 //        System.out.println("Score of v4:" + v4.getScore());
 
     }
