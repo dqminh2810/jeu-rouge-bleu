@@ -223,32 +223,80 @@ public class Graph {
     /* ********************** */
     /**
      * Method allows to resolve the problem "red blue game" by using heuristic algorithm v1
+     *  Phase 1: Find RED vertices and change his neighbours color to RED adapting to the arc color
      * - Find RED vertices in graph (1)
-     * - Delete arcs which link between the RED vertices found above and his neighbours (2)
-     * - Delete RED vertices found
-     * - At the end, the graph has left the BLUE vertices with arc linking between them (4)
-     * @return : number of arc current in graph
+     * - Find RED outgoing arcs of RED vertices found above and turn the neighbours color to RED (2)
+     *
+     *  Phase 2: Delete all RED vertices found with the arc linking to these vertices
+     * - Delete arcs which link between the RED vertices found above and his neighbours (3)
+     * - Delete RED vertices found (4)
+     *
+     * - At the end, the graph has left only the BLUE vertices with arc linking between them (5)
+     * @return : number of vertices (color of RED) deleted in graph
      */
     public int resolve_heuristic_v1(){
         ArrayList<Vertex> red_vertices = new ArrayList<>();
-        /* Step (1) and (2) */
+
+        /* Phase 1 */
         for(int i=0; i<vertices.size(); i++){
+            /* Step (1) */
             if(vertices.get(i).getColor()==Color.RED){
-                // Add Red vertex to list to be deleted after
-                red_vertices.add(vertices.get(i));
-                // Delete arcs linking between this red vertex and his neighbours
-                for(int j=0; j<vertices.size(); j++){
-                    vertices.get(i).remove_arc(vertices.get(j));
-                    vertices.get(j).remove_arc(vertices.get(i));
+                boolean existed_i = false;
+                for(Vertex v: red_vertices){
+                    if(v.getName().equals(vertices.get(i).getName())){
+                        existed_i = true;
+                        break;
+                    }
+                }
+                if(!existed_i){
+                    red_vertices.add(vertices.get(i));  // Add Red vertex to list to be deleted if it does not added
+                    System.out.println("Red vertex initial "+vertices.get(i).getName());
+                }
+
+                /* Step (2) */
+                for(int j=0; j<vertices.size(); j++) {
+                    HashMap<Color, Boolean> arcs = vertices.get(i).get_arc_color(vertices.get(j));
+                    for (HashMap.Entry<Color, Boolean> entry : arcs.entrySet()) {
+                        Color color_arc = entry.getKey();
+                        Boolean orientation_arc = entry.getValue();
+                        if(!orientation_arc){   // outgoing arc
+                            if(color_arc == Color.RED){ // and it color is RED
+                                vertices.get(j).setColor(Color.RED);    // turn the neighbour to RED
+                                boolean existed_j = false;
+                                for(Vertex v: red_vertices){
+                                    if(v.getName().equals(vertices.get(j).getName())){
+                                        existed_j = true;
+                                        break;
+                                    }
+                                }
+                                if(!existed_j){
+                                    red_vertices.add(vertices.get(j));      // add to the red vertices list if it does not added
+                                    System.out.println("Add vertex after change color to Red "+vertices.get(j).getName());
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
+        int nb_red_vertices = red_vertices.size();
+
+        /* Phase 2 */
         /* Step (3) */
-        vertices.removeAll(red_vertices);
+        // Delete arcs linking between this red vertex and his neighbours
+        for(int i=0; i<red_vertices.size(); i++){
+            for(int j=0; j<vertices.size(); j++){
+                red_vertices.get(i).remove_arc(vertices.get(j));
+                vertices.get(j).remove_arc(red_vertices.get(i));
+            }
+        }
 
         /* Step (4) */
-        return this.get_nb_arc();
+        vertices.removeAll(red_vertices);
+
+        /* Step (5)*/
+        return nb_red_vertices;
     }
 
     /**

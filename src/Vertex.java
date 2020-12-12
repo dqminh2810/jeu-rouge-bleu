@@ -128,7 +128,7 @@ public class Vertex {
         for (HashMap.Entry<Vertex, Color> entry : ins.entrySet()) {
             Vertex in_vertex = entry.getKey();
             Color color_arc = entry.getValue();
-            if(in_vertex == v){
+            if(in_vertex.getName().equals(v.getName())){
                 arc_colors.put(color_arc, true);
             }
         }
@@ -136,7 +136,7 @@ public class Vertex {
         for (HashMap.Entry<Vertex, Color> entry : outs.entrySet()) {
             Vertex out_vertex = entry.getKey();
             Color color_arc = entry.getValue();
-            if(out_vertex == v){
+            if(out_vertex.getName().equals(v.getName())){
                 arc_colors.put(color_arc, false);
             }
         }
