@@ -75,12 +75,35 @@ public class Vertex {
     }
 
     /**
+     * Remove entrants arc between this vertex and another vertex given
+     * @param v given vertex
+     */
+    public void remove_in_arc(Vertex v){
+        this.getIns().remove(v);
+    }
+
+    /**
+     * Remove outputs arc between this vertex and another vertex given
+     * @param v given vertex
+     */
+    public void remove_out_arc(Vertex v){
+        this.getOuts().remove(v);
+    }
+
+    /**
+     * Remove both entrants and outputs arc between this vertex and another vertex given
+     * @param v given vertex
+     */
+    public void remove_arc(Vertex v){
+        remove_in_arc(v);
+        remove_out_arc(v);
+    }
+    /**
      * Check if vertex color is red
      * @return result of red color checking
      */
     public boolean is_red(){
-        if(color == Color.RED) return true;
-        return false;
+        return color == Color.RED;
     }
 
     /**
@@ -88,8 +111,7 @@ public class Vertex {
      * @return result of blue color checking
      */
     public boolean is_blue(){
-        if(color == Color.BLUE) return true;
-        return false;
+        return color == Color.BLUE;
     }
 
     /**
@@ -163,7 +185,7 @@ public class Vertex {
 
     /**
      * Get vertex informations
-     * @return vertex info
+     * @return vertex info as String
      */
     public String toString(){
         StringBuilder res = new StringBuilder();

@@ -6,10 +6,10 @@ import java.util.Random;
  * Graphe orienté bi-coloré et symétrique complet
  */
 public class Graph {
-    private ArrayList<Vertex> vertexs;
+    private ArrayList<Vertex> vertices;
 
     public Graph(){
-        vertexs = new ArrayList<>();
+        vertices = new ArrayList<>();
     }
 
     /**
@@ -24,14 +24,14 @@ public class Graph {
         for(int i = 0; i < n; i++){
             Vertex u = new Vertex(String.valueOf(i), generate_vertex_color(p));
             if(!is_exist_vertex(u)){
-                vertexs.add(u);
+                vertices.add(u);
             }
         }
         /* generate arc */
         for(int i = 0; i < n-1; i++){
-            vertexs.get(i).add_in_vertex(vertexs.get(i+1), generate_arc_color(q));
-            vertexs.get(i).add_out_vertex(vertexs.get(i+1), generate_arc_color(q));
-            if(!is_coherent(vertexs.get(i), vertexs.get(i+1))){
+            vertices.get(i).add_in_vertex(vertices.get(i+1), generate_arc_color(q));
+            vertices.get(i).add_out_vertex(vertices.get(i+1), generate_arc_color(q));
+            if(!is_coherent(vertices.get(i), vertices.get(i+1))){
                 System.out.println("Something wrong between" + i + " and " + i+1 + "\n");
                 break;
             }
@@ -44,7 +44,6 @@ public class Graph {
      * @return RED or BLUE as color vertex generated
      */
     public Color generate_vertex_color(double p){
-        // Vertex generated
         if( new Random().nextDouble() <= p ) {
             return Color.RED;
         }else {
@@ -58,7 +57,6 @@ public class Graph {
      * @return RED or BLUE as color arc generated
      */
     public Color generate_arc_color(double q){
-        // Arc generated
         if( new Random().nextDouble() <= q ) {
             return Color.BLUE;
         }else {
@@ -72,7 +70,7 @@ public class Graph {
      * @return true if it does exist, false otherwise
      */
     public boolean is_exist_vertex(Vertex ve){
-        for(Vertex v: vertexs){
+        for(Vertex v: vertices){
             if(v.getName().equals(ve.getName())) {
                 return true;
             }
@@ -85,7 +83,7 @@ public class Graph {
      * @return : number of vertex current in graph
      */
     public int get_nb_vertex(){
-        return vertexs.size();
+        return vertices.size();
     }
 
     /**
@@ -94,8 +92,9 @@ public class Graph {
      */
     public int get_nb_arc(){
         int nb_arc = 0;
-        for(Vertex v: vertexs){
-            nb_arc+=v.get_nb_arc();
+        for(Vertex v: vertices){
+            // avoid duplication by divided to 2
+            nb_arc+=v.get_nb_arc()/2;
         }
         return nb_arc;
     }
@@ -106,7 +105,7 @@ public class Graph {
      */
     public ArrayList<Vertex> get_red_vertex(){
         ArrayList<Vertex> red_ones = new ArrayList<>();
-        for(Vertex v: vertexs){
+        for(Vertex v: vertices){
             if(v.is_red()) red_ones.add(v);
         }
         return red_ones;
@@ -118,7 +117,7 @@ public class Graph {
      */
     public ArrayList<Vertex> get_blue_vertex(){
         ArrayList<Vertex> blue_ones = new ArrayList<>();
-        for(Vertex v: vertexs){
+        for(Vertex v: vertices){
             if(v.is_blue()) blue_ones.add(v);
         }
         return blue_ones;
@@ -212,8 +211,8 @@ public class Graph {
      * Display graph generated
      */
     public void print_graph(){
-        for(int i = 0; i < vertexs.size(); i++){
-            System.out.println(vertexs.get(i).toString());
+        for(int i = 0; i < vertices.size(); i++){
+            System.out.println(vertices.get(i).toString());
         }
     }
 
@@ -224,11 +223,32 @@ public class Graph {
     /* ********************** */
     /**
      * Method allows to resolve the problem "red blue game" by using heuristic algorithm v1
+     * - Find RED vertices in graph (1)
+     * - Delete arcs which link between the RED vertices found above and his neighbours (2)
+     * - Delete RED vertices found
+     * - At the end, the graph has left the BLUE vertices with arc linking between them (4)
      * @return : number of arc current in graph
      */
     public int resolve_heuristic_v1(){
-        return 0;
-        //TODO
+        ArrayList<Vertex> red_vertices = new ArrayList<>();
+        /* Step (1) and (2) */
+        for(int i=0; i<vertices.size(); i++){
+            if(vertices.get(i).getColor()==Color.RED){
+                // Add Red vertex to list to be deleted after
+                red_vertices.add(vertices.get(i));
+                // Delete arcs linking between this red vertex and his neighbours
+                for(int j=0; j<vertices.size(); j++){
+                    vertices.get(i).remove_arc(vertices.get(j));
+                    vertices.get(j).remove_arc(vertices.get(i));
+                }
+            }
+        }
+
+        /* Step (3) */
+        vertices.removeAll(red_vertices);
+
+        /* Step (4) */
+        return this.get_nb_arc();
     }
 
     /**
