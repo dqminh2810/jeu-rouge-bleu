@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Vertex in oriented graph bi-coloré
@@ -19,6 +16,12 @@ public class Vertex {
         outs = new HashMap<>();
     }
 
+    public Vertex(String name){
+        this.name = name;
+        //this.color = color;
+        ins = new HashMap<>();
+        outs = new HashMap<>();
+    }
     /**
      * Getting number of entrants arc on this vertex
      * @return number of entrants arc of this vertex
@@ -49,7 +52,12 @@ public class Vertex {
      * @param arc_color : arc color between this vertex and entrant
      */
     public void add_in_vertex(Vertex vi, Color arc_color){
-        ins.put(vi, arc_color);
+        if(!ins.containsKey(vi)){
+            ins.put(vi, arc_color);
+        }
+        if(!vi.outs.containsKey(this)){
+            vi.add_out_vertex(this, arc_color);
+        }
     }
 
     /**
@@ -58,7 +66,12 @@ public class Vertex {
      * @param arc_color : arc color between this vertex and outgoing
      */
     public void add_out_vertex(Vertex vo, Color arc_color){
-        outs.put(vo, arc_color);
+        if(!outs.containsKey(vo)) {
+            outs.put(vo, arc_color);
+        }
+        if(!vo.ins.containsKey(this)) {
+            vo.ins.put(this, arc_color);
+        }
     }
 
     /**
@@ -146,5 +159,35 @@ public class Vertex {
 
     public void setOuts(HashMap<Vertex, Color> outs) {
         this.outs = outs;
+    }
+
+    /**
+     * Get vertex informations
+     * @return vertex info
+     */
+    public String toString(){
+        StringBuilder res = new StringBuilder();
+        res.append("Vertex name: ").append(this.getName()).append("\n");
+        res.append("Vertex color: ").append(this.getColor()).append("\n");
+
+        res.append("Ins: " + "\n");
+        for (HashMap.Entry<Vertex, Color> entry : ins.entrySet()) {
+            Vertex in_vertex = entry.getKey();
+            Color in_arc_color = entry.getValue();
+            res.append("- in vertex ").append(in_vertex.getName()).append(" ").append(in_vertex.getColor()).append("\n");
+            res.append("- in arc color ").append(in_arc_color.toString()).append("\n");
+        }
+
+
+        res.append("Outs: " + "\n");
+        for (HashMap.Entry<Vertex, Color> entry : outs.entrySet()) {
+            Vertex out_vertex = entry.getKey();
+            Color out_arc_color = entry.getValue();
+            res.append("- out vertex ").append(out_vertex.getName()).append(" ").append(out_vertex.getColor()).append("\n");
+            res.append("- out arc color ").append(out_arc_color.toString()).append("\n");
+        }
+
+
+        return res.toString();
     }
 }

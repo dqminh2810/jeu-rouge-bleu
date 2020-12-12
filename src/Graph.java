@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Graphe orienté bi-coloré et symétrique complet
@@ -19,7 +20,64 @@ public class Graph {
      * @param n : number of vertex
      */
     public void generate(double p, double q, int n){
-        //TODO
+        /* generate vertex */
+        for(int i = 0; i < n; i++){
+            Vertex u = new Vertex(String.valueOf(i), generate_vertex_color(p));
+            if(!is_exist_vertex(u)){
+                vertexs.add(u);
+            }
+        }
+        /* generate arc */
+        for(int i = 0; i < n-1; i++){
+            vertexs.get(i).add_in_vertex(vertexs.get(i+1), generate_arc_color(q));
+            vertexs.get(i).add_out_vertex(vertexs.get(i+1), generate_arc_color(q));
+            if(!is_coherent(vertexs.get(i), vertexs.get(i+1))){
+                System.out.println("Something wrong between" + i + " and " + i+1 + "\n");
+                break;
+            }
+        }
+    }
+
+    /**
+     * Generate random color vertex
+     * @param p probability for color of red, 1-p for color of blue
+     * @return RED or BLUE as color vertex generated
+     */
+    public Color generate_vertex_color(double p){
+        // Vertex generated
+        if( new Random().nextDouble() <= p ) {
+            return Color.RED;
+        }else {
+            return Color.BLUE;
+        }
+    }
+
+    /**
+     * Generate random color arc
+     * @param q probability for color of blue, 1-q for color of red
+     * @return RED or BLUE as color arc generated
+     */
+    public Color generate_arc_color(double q){
+        // Arc generated
+        if( new Random().nextDouble() <= q ) {
+            return Color.BLUE;
+        }else {
+            return Color.RED;
+        }
+    }
+
+    /**
+     * Check if this graph contains such vertex
+     * @param ve vertex given to check
+     * @return true if it does exist, false otherwise
+     */
+    public boolean is_exist_vertex(Vertex ve){
+        for(Vertex v: vertexs){
+            if(v.getName().equals(ve.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -150,8 +208,14 @@ public class Graph {
         return check;
     }
 
-
-
+    /**
+     * Display graph generated
+     */
+    public void print_graph(){
+        for(int i = 0; i < vertexs.size(); i++){
+            System.out.println(vertexs.get(i).toString());
+        }
+    }
 
     /* ********************** */
     /* ********************** */
