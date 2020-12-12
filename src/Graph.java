@@ -6,7 +6,11 @@ import java.util.Random;
  * Graphe orienté bi-coloré et symétrique complet
  */
 public class Graph {
-    private ArrayList<Vertex> vertices;
+    private final ArrayList<Vertex> vertices;
+
+    public Graph(ArrayList<Vertex> vertices){
+        this.vertices = vertices;
+    }
 
     public Graph(){
         vertices = new ArrayList<>();
@@ -216,6 +220,11 @@ public class Graph {
         }
     }
 
+    public void removeVertex(Vertex vertex){
+        vertices.remove(vertex);
+//        vertex.getOuts();
+    }
+
     /* ********************** */
     /* ********************** */
     /* * QUESTION 6 METHODS * */
@@ -256,8 +265,16 @@ public class Graph {
      * @return : number of arc current in graph
      */
     public int resolve_heuristic_v2(){
-        return 0;
-        //TODO
+        int k = 0;    //nombre de sommets rouges enlevés
+        while(this.get_nb_red_vertex() != 0){       //tant qu'il y a des sommets rouges
+            ArrayList<Vertex> redOnes = this.get_red_vertex();      //On récupère la liste de sommets rouges
+            Vertex bestRed = redOnes.get(0);        //le meilleur sommet rouge à enlever, par défaut c'est le premier de la liste
+            for (Vertex red : redOnes){
+                if(red.getScore() >= bestRed.getScore() ) bestRed = red;  //mettre à jour le bestRed (algo de sort)
+            }
+            vertices.remove(bestRed); k++;
+        }
+        return k;
     }
 
 }

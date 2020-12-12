@@ -143,6 +143,21 @@ public class Vertex {
         return arc_colors;
     }
 
+    /**
+     * return a score for a red vertex
+     * @return the score
+     */
+    public int getScore(){
+        int score = 0;
+        for (HashMap.Entry<Vertex,Color> entry : outs.entrySet()){      //On regarde les arcs sortants
+            if(entry.getValue() == Color.RED && entry.getKey().is_blue()) score =+ 1;  //si l'arc est rouge et le sommet d'arrivé est bleu : +1 point
+            else if(entry.getValue() == Color.RED && entry.getKey().is_red()) score =+ 0;
+            else if(entry.getValue() == Color.BLUE && entry.getKey().is_blue()) score =+ 0;
+            else if(entry.getValue() == Color.BLUE && entry.getKey().is_red()) score =- 1; //si l'arc est bleu et le sommet d'arrivé est rouge : -1 point
+        }
+    return score;
+    }
+
 
     /**
      * GETTERS
