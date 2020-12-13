@@ -13,13 +13,51 @@ public class Graph {
     }
 
     /**
-     * Method allows to generate graph with arguments given
+     * Method allows to generate asymmetric graph with arguments given
+     * - The graph after generated will be a "Graphe orienté bi-coloré et symétrique complet"
+     * @param p : red probability of a vertex
+     * @param q : blue probabilty of an arc
+     * @param o : entrant direction probabilty of an arc
+     * @param n : number of vertex
+     */
+    public void generate_asymmetric(double p, double q, double o, int n){
+        /* generate vertex */
+        for(int i = 0; i < n; i++){
+            Vertex u = new Vertex(String.valueOf(i), generate_vertex_color(p));
+            if(!is_exist_vertex(u)){
+                vertices.add(u);
+            }
+        }
+        /* generate arc */
+        Random random = new Random();
+        for(int i = 0; i < n-1; i++){
+            int nb_arc = random.nextInt(n/2);      // Get random number arc of this vertex
+            for(int j = 0; j < nb_arc; j++){
+                int v = random.nextInt(n);              // Get random vertex link to this vertex
+                boolean direction = generate_arc_direction(o);  // Get random arc direction between these two vertices
+                if(v != i){
+                    if(direction){  // entrant arc
+                        vertices.get(i).add_in_vertex(vertices.get(v), generate_arc_color(q));
+                    }else{  // outgoing arc
+                        vertices.get(i).add_out_vertex(vertices.get(v), generate_arc_color(q));
+                    }
+                    if(!is_coherent(vertices.get(i), vertices.get(v))) {    // check coherent
+                        System.out.println("Something wrong between" + i + " and " + v + "\n");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Method allows to generate full symmetric graph with arguments given
      * - The graph after generated will be a "Graphe orienté bi-coloré et symétrique complet"
      * @param p : red probability of a vertex
      * @param q : blue probabilty of an arc
      * @param n : number of vertex
      */
-    public void generate(double p, double q, int n){
+    public void generate_full_symmetric(double p, double q, int n){
         /* generate vertex */
         for(int i = 0; i < n; i++){
             Vertex u = new Vertex(String.valueOf(i), generate_vertex_color(p));
@@ -61,6 +99,19 @@ public class Graph {
             return Color.BLUE;
         }else {
             return Color.RED;
+        }
+    }
+
+    /**
+     * Generate random direction arc
+     * @param o probability for direction entrant, 1-q for direction outgoing
+     * @return true if entrant or false if outgoing
+     */
+    public boolean generate_arc_direction(double o){
+        if( new Random().nextDouble() <= o ) {
+            return true;
+        }else {
+            return false;
         }
     }
 
@@ -234,7 +285,7 @@ public class Graph {
      * - At the end, the graph has left only the BLUE vertices with arc linking between them (5)
      * @return : number of vertices (color of RED) deleted in graph
      */
-    public int resolve_heuristic_v1(){
+    public ArrayList<Vertex> resolve_heuristic_v1(){
         ArrayList<Vertex> red_vertices = new ArrayList<>();
 
         /* Phase 1 */
@@ -280,8 +331,6 @@ public class Graph {
             }
         }
 
-        int nb_red_vertices = red_vertices.size();
-
         /* Phase 2 */
         /* Step (3) */
         // Delete arcs linking between this red vertex and his neighbours
@@ -296,7 +345,7 @@ public class Graph {
         vertices.removeAll(red_vertices);
 
         /* Step (5)*/
-        return nb_red_vertices;
+        return red_vertices;
     }
 
     /**
