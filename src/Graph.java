@@ -267,6 +267,14 @@ public class Graph {
         }
     }
 
+    public ArrayList<Vertex> getVertices() {
+        return vertices;
+    }
+
+    public void setVertices(ArrayList<Vertex> vertices) {
+        this.vertices = vertices;
+    }
+
     /* ********************** */
     /* ********************** */
     /* * QUESTION 6 METHODS * */
@@ -353,8 +361,8 @@ public class Graph {
      * Method allows to resolve the problem "red blue game" by using heuristic algorithm v2
      * @return : number of arc current in graph
      */
-    public int resolve_heuristic_v2(){
-        return 0;
+    public ArrayList<Vertex> resolve_heuristic_v2(){
+        return null;
         //TODO
     }
 

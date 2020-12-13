@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Main {
     public static void main(String[] args) {
         //Graph graph = new Graph();
@@ -31,14 +33,21 @@ public class Main {
 
         for(double p=0; p<1; p+=0.1){
             for(double q=0; q<1; q+=0.1){
-                int res = 0;
+                int res_1 = 0;
+                //int res_2 = 0;
                 for(int i=0; i<100; i++){
-                    Graph graph = new Graph();
-                    graph.generate_asymmetric(p, q, 0.5, 100);
-                    res+=graph.resolve_heuristic_v1().size();
+                    Graph graph_1 = new Graph();
+                    //Graph graph_2 = new Graph();
+                    graph_1.generate_asymmetric(p, q, 0.5, 100);
+                    //graph_2.setVertices(new ArrayList<>(graph_1.getVertices()));
+                    res_1+=graph_1.resolve_heuristic_v1().size();
+                    //res_2+=graph_2.resolve_heuristic_v2().size();
                 }
-                res/=100;
-                System.out.format("f( %.1f ; %.1f) = %s \n", p, q, res);
+                res_1/=100;
+                System.out.format("V1 - f( %.1f ; %.1f) = %s \n", p, q, res_1);
+                //res_2/=100;
+                //System.out.format("V2 - f( %.1f ; %.1f) = %s \n", p, q, res_2);
+
             }
         }
     }
