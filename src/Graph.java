@@ -283,7 +283,7 @@ public class Graph {
      * - Delete RED vertices found (4)
      *
      * - At the end, the graph has left only the BLUE vertices with arc linking between them (5)
-     * @return : number of vertices (color of RED) deleted in graph
+     * @return : list of RED vertices deleted from graph
      */
     public ArrayList<Vertex> resolve_heuristic_v1(){
         ArrayList<Vertex> red_vertices = new ArrayList<>();
@@ -301,7 +301,7 @@ public class Graph {
                 }
                 if(!existed_i){
                     red_vertices.add(vertices.get(i));  // Add Red vertex to list to be deleted if it does not added
-                    System.out.println("Red vertex initial "+vertices.get(i).getName());
+                    //System.out.println("Red vertex initial "+vertices.get(i).getName());
                 }
 
                 /* Step (2) */
@@ -322,7 +322,7 @@ public class Graph {
                                 }
                                 if(!existed_j){
                                     red_vertices.add(vertices.get(j));      // add to the red vertices list if it does not added
-                                    System.out.println("Add vertex after change color to Red "+vertices.get(j).getName());
+                                    //System.out.println("Add vertex after change color to Red "+vertices.get(j).getName());
                                 }
                             }
                         }
@@ -342,6 +342,7 @@ public class Graph {
         }
 
         /* Step (4) */
+        // Delete all red vertices found and marked above
         vertices.removeAll(red_vertices);
 
         /* Step (5)*/
