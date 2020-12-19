@@ -1,47 +1,96 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-//        Graph graph = new Graph();
-//        graph.generate(0.25, 0.5, 10);
-//        graph.print_graph();
-//        System.out.println("- Number arc in this graph: "+graph.get_nb_arc()+"\n");
-//        System.out.println("- Number arc in this graph after resolve heuristic v1: "+graph.resolve_heuristic_v1()+"\n");
 
-        Vertex v1 = new Vertex("1", Color.RED);
-        Vertex v2 = new Vertex("2", Color.BLUE);
-        Vertex v3 = new Vertex("3", Color.BLUE);
-        Vertex v4 = new Vertex("3", Color.RED);
+        Graph graph = new Graph();
+        graph.generate_asymmetric(0.25, 0.5, 0.5, 10);
 
-        v1.add_out_vertex(v2, Color.RED);
-        v1.add_in_vertex(v3, Color.BLUE);
+        Graph graph_copy = (Graph) deepCopy(graph);
 
-        v2.add_out_vertex(v3, Color.RED);
-        v2.add_out_vertex(v4, Color.BLUE);
-        v2.add_in_vertex(v1, Color.RED);
-        v2.add_in_vertex(v4, Color.BLUE);
+        System.out.println("ALGO 1 ********************************************************");
 
-        v3.add_out_vertex(v1, Color.BLUE);
-        v3.add_in_vertex(v2, Color.RED);
-
-        v4.add_out_vertex(v2, Color.BLUE);
-        v4.add_in_vertex(v2, Color.BLUE);
-
-        ArrayList<Vertex> vertices  = new ArrayList<>();
-        vertices.add(v1);
-        vertices.add(v2);
-        vertices.add(v3);
-        vertices.add(v4);
-
-        Graph graph = new Graph(vertices);
-        graph.print_graph();
         System.out.println("- Number red vertex in this graph: "+graph.get_nb_red_vertex()+ " of "+ graph.get_nb_vertex()+ " in total" + "\n");
-        int k = graph.resolve_heuristic_v2();
+        int k1 = graph.resolve_heuristic_v1().size();
         System.out.println("- Number red vertex in this graph: "+graph.get_nb_red_vertex()+ " of "+ graph.get_nb_vertex()+ " in total" + "\n");
-        System.out.println("Number of red vertex removed: " + k +"\n");
+        System.out.println("Number of red vertex removed: " + k1 +"\n");
 
-//        System.out.println("Score of v1:" + v1.getScore());
-//        System.out.println("Score of v4:" + v4.getScore());
+        System.out.println("ALGO 2 ********************************************************");
 
+        System.out.println("- Number red vertex in this graph: "+graph_copy.get_nb_red_vertex()+ " of "+ graph_copy.get_nb_vertex()+ " in total" + "\n");
+        int k2 = graph_copy.resolve_heuristic_v2();
+        System.out.println("- Number red vertex in this graph: "+graph_copy.get_nb_red_vertex()+ " of "+ graph_copy.get_nb_vertex()+ " in total" + "\n");
+        System.out.println("Number of red vertex removed: " + k2 +"\n");
+
+
+        //Graph graph = new Graph();
+
+        /* SYMMETRIC GRAPH*/
+        //graph.generate_full_symmetric(0.25, 0.5, 10);
+        //graph.print_graph();
+
+        /* ASYMMETRIC GRAPH*/
+        //graph.generate_asymmetric(0.25, 0.5, 0.5, 10);
+        //graph.print_graph();
+
+        /* INITIAL GRAPH */
+        //System.out.println("*** Before ****\n");
+        //graph.print_graph();
+        //System.out.println("- Number vertices in this graph: " + graph.get_nb_vertex()+"\n");
+
+        /* AFTER USING HEURISTIC ALGORITHM */
+        //System.out.println("*** After resolve heuristic v1 ****\n");
+        //System.out.println("- Number red vertices deleted: " + graph.resolve_heuristic_v1().size()+"\n");
+        //graph.print_graph();
+        //System.out.println("- Number vertices has left: " + graph.get_nb_vertex()+"\n");
+
+
+
+        /* *************** */
+        /* *************** */
+        /* * QUESTION 7  * */
+        /* *************** */
+        /* *************** */
+
+        /*
+        for(double p=0; p<1; p+=0.1){
+            for(double q=0; q<1; q+=0.1){
+                int res_1 = 0;
+                //int res_2 = 0;
+                for(int i=0; i<100; i++){
+                    Graph graph_1 = new Graph();
+                    //Graph graph_2 = new Graph();
+                    graph_1.generate_asymmetric(p, q, 0.5, 100);
+                    //graph_2.setVertices(new ArrayList<>(graph_1.getVertices()));
+                    res_1+=graph_1.resolve_heuristic_v1().size();
+                    //res_2+=graph_2.resolve_heuristic_v2().size();
+                }
+                res_1/=100;
+                System.out.format("V1 - f( %.1f ; %.1f) = %s \n", p, q, res_1);
+                //res_2/=100;
+                //System.out.format("V2 - f( %.1f ; %.1f) = %s \n", p, q, res_2);
+
+            }
+        }*/
+
+    }
+
+    private static Object deepCopy(Object object) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ObjectOutputStream outputStrm = new ObjectOutputStream(outputStream);
+            outputStrm.writeObject(object);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            ObjectInputStream objInputStream = new ObjectInputStream(inputStream);
+            return objInputStream.readObject();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

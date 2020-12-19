@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -5,8 +6,8 @@ import java.util.Random;
 /**
  * Graphe orienté bi-coloré et symétrique complet
  */
-public class Graph {
-    private final ArrayList<Vertex> vertices;
+public class Graph implements Serializable {
+    private ArrayList<Vertex> vertices;
 
     public Graph(ArrayList<Vertex> vertices){
         this.vertices = vertices;
@@ -17,13 +18,51 @@ public class Graph {
     }
 
     /**
-     * Method allows to generate graph with arguments given
+     * Method allows to generate asymmetric graph with arguments given
+     * - The graph after generated will be a "Graphe orienté bi-coloré et symétrique complet"
+     * @param p : red probability of a vertex
+     * @param q : blue probabilty of an arc
+     * @param o : entrant direction probabilty of an arc
+     * @param n : number of vertex
+     */
+    public void generate_asymmetric(double p, double q, double o, int n){
+        /* generate vertex */
+        for(int i = 0; i < n; i++){
+            Vertex u = new Vertex(String.valueOf(i), generate_vertex_color(p));
+            if(!is_exist_vertex(u)){
+                vertices.add(u);
+            }
+        }
+        /* generate arc */
+        Random random = new Random();
+        for(int i = 0; i < n-1; i++){
+            int nb_arc = random.nextInt(n/2);      // Get random number arc of this vertex
+            for(int j = 0; j < nb_arc; j++){
+                int v = random.nextInt(n);              // Get random vertex link to this vertex
+                boolean direction = generate_arc_direction(o);  // Get random arc direction between these two vertices
+                if(v != i){
+                    if(direction){  // entrant arc
+                        vertices.get(i).add_in_vertex(vertices.get(v), generate_arc_color(q));
+                    }else{  // outgoing arc
+                        vertices.get(i).add_out_vertex(vertices.get(v), generate_arc_color(q));
+                    }
+                    if(!is_coherent(vertices.get(i), vertices.get(v))) {    // check coherent
+                        System.out.println("Something wrong between" + i + " and " + v + "\n");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Method allows to generate full symmetric graph with arguments given
      * - The graph after generated will be a "Graphe orienté bi-coloré et symétrique complet"
      * @param p : red probability of a vertex
      * @param q : blue probabilty of an arc
      * @param n : number of vertex
      */
-    public void generate(double p, double q, int n){
+    public void generate_full_symmetric(double p, double q, int n){
         /* generate vertex */
         for(int i = 0; i < n; i++){
             Vertex u = new Vertex(String.valueOf(i), generate_vertex_color(p));
@@ -65,6 +104,19 @@ public class Graph {
             return Color.BLUE;
         }else {
             return Color.RED;
+        }
+    }
+
+    /**
+     * Generate random direction arc
+     * @param o probability for direction entrant, 1-q for direction outgoing
+     * @return true if entrant or false if outgoing
+     */
+    public boolean generate_arc_direction(double o){
+        if( new Random().nextDouble() <= o ) {
+            return true;
+        }else {
+            return false;
         }
     }
 
@@ -220,9 +272,12 @@ public class Graph {
         }
     }
 
-    public void removeVertex(Vertex vertex){
-        vertices.remove(vertex);
-//        vertex.getOuts();
+    public ArrayList<Vertex> getVertices() {
+        return vertices;
+    }
+
+    public void setVertices(ArrayList<Vertex> vertices) {
+        this.vertices = vertices;
     }
 
     /* ********************** */
@@ -232,46 +287,104 @@ public class Graph {
     /* ********************** */
     /**
      * Method allows to resolve the problem "red blue game" by using heuristic algorithm v1
+     *  Phase 1: Find RED vertices and change his neighbours color to RED adapting to the arc color
      * - Find RED vertices in graph (1)
-     * - Delete arcs which link between the RED vertices found above and his neighbours (2)
-     * - Delete RED vertices found
-     * - At the end, the graph has left the BLUE vertices with arc linking between them (4)
-     * @return : number of arc current in graph
+     * - Find RED outgoing arcs of RED vertices found above and turn the neighbours color to RED (2)
+     *
+     *  Phase 2: Delete all RED vertices found with the arc linking to these vertices
+     * - Delete arcs which link between the RED vertices found above and his neighbours (3)
+     * - Delete RED vertices found (4)
+     *
+     * - At the end, the graph has left only the BLUE vertices with arc linking between them (5)
+     * @return : list of RED vertices deleted from graph
      */
-    public int resolve_heuristic_v1(){
+    public ArrayList<Vertex> resolve_heuristic_v1(){
         ArrayList<Vertex> red_vertices = new ArrayList<>();
-        /* Step (1) and (2) */
+
+        /* Phase 1 */
         for(int i=0; i<vertices.size(); i++){
+            /* Step (1) */
             if(vertices.get(i).getColor()==Color.RED){
-                // Add Red vertex to list to be deleted after
-                red_vertices.add(vertices.get(i));
-                // Delete arcs linking between this red vertex and his neighbours
-                for(int j=0; j<vertices.size(); j++){
-                    vertices.get(i).remove_arc(vertices.get(j));
-                    vertices.get(j).remove_arc(vertices.get(i));
+                boolean existed_i = false;
+                for(Vertex v: red_vertices){
+                    if(v.getName().equals(vertices.get(i).getName())){
+                        existed_i = true;
+                        break;
+                    }
+                }
+                if(!existed_i){
+                    red_vertices.add(vertices.get(i));  // Add Red vertex to list to be deleted if it does not added
+                    //System.out.println("Red vertex initial "+vertices.get(i).getName());
+                }
+
+                /* Step (2) */
+                for(int j=0; j<vertices.size(); j++) {
+                    HashMap<Color, Boolean> arcs = vertices.get(i).get_arc_color(vertices.get(j));
+                    for (HashMap.Entry<Color, Boolean> entry : arcs.entrySet()) {
+                        Color color_arc = entry.getKey();
+                        Boolean orientation_arc = entry.getValue();
+                        if(!orientation_arc){   // outgoing arc
+                            if(color_arc == Color.RED){ // and it color is RED
+                                vertices.get(j).setColor(Color.RED);    // turn the neighbour to RED
+                                boolean existed_j = false;
+                                for(Vertex v: red_vertices){
+                                    if(v.getName().equals(vertices.get(j).getName())){
+                                        existed_j = true;
+                                        break;
+                                    }
+                                }
+                                if(!existed_j){
+                                    red_vertices.add(vertices.get(j));      // add to the red vertices list if it does not added
+                                    //System.out.println("Add vertex after change color to Red "+vertices.get(j).getName());
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
+        /* Phase 2 */
         /* Step (3) */
-        vertices.removeAll(red_vertices);
+        // Delete arcs linking between this red vertex and his neighbours
+        for(int i=0; i<red_vertices.size(); i++){
+            for(int j=0; j<vertices.size(); j++){
+                red_vertices.get(i).remove_arc(vertices.get(j));
+                vertices.get(j).remove_arc(red_vertices.get(i));
+            }
+        }
 
         /* Step (4) */
-        return this.get_nb_arc();
+        // Delete all red vertices found and marked above
+        vertices.removeAll(red_vertices);
+
+        /* Step (5)*/
+        return red_vertices;
     }
 
     /**
      * Method allows to resolve the problem "red blue game" by using heuristic algorithm v2
-     * @return : number of arc current in graph
+     * @return : number of red vertices deleted
      */
     public int resolve_heuristic_v2(){
-        int k = 0;    //nombre de sommets rouges enlevés
-        while(this.get_nb_red_vertex() != 0){       //tant qu'il y a des sommets rouges
-            ArrayList<Vertex> redOnes = this.get_red_vertex();      //On récupère la liste de sommets rouges
-            Vertex bestRed = redOnes.get(0);        //le meilleur sommet rouge à enlever, par défaut c'est le premier de la liste
+       // Number of red vertices removed:
+        int k = 0;
+        // As long as there are red vertices:
+        while(this.get_nb_red_vertex() != 0){
+            // We get the list of red vertices:
+            ArrayList<Vertex> redOnes = this.get_red_vertex();
+            // the best red vertex to remove, by default it is the first in the list:
+            Vertex bestRed = redOnes.get(0);
             for (Vertex red : redOnes){
-                if(red.getScore() >= bestRed.getScore() ) bestRed = red;  //mettre à jour le bestRed (algo de sort)
+                // update the bestRed according to its score :
+                if(red.getScore() >= bestRed.getScore() ) bestRed = red;
             }
+            // We look at the outgoing vertices of bestRed:
+            for (HashMap.Entry<Vertex,Color> entry : bestRed.getOuts().entrySet()){
+                // We modify the color of each vertex by the color of each outgoing arc
+                entry.getKey().setColor(entry.getValue());
+            }
+            // We finally remove the red vertex with the best score:
             vertices.remove(bestRed); k++;
         }
         return k;
