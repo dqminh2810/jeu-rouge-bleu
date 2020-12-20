@@ -1,9 +1,10 @@
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Vertex in oriented graph bi-coloré
  */
-public class Vertex {
+public class Vertex implements Serializable {
     private String name;    // vertex name
     private Color color;  // vertex color which is red or blue
     private HashMap<Vertex, Color> ins;   // entrants of this vertex which key is entrant vertex & value is arc color
@@ -141,6 +142,21 @@ public class Vertex {
             }
         }
         return arc_colors;
+    }
+
+    /**
+     * return a score for a red vertex according to the color of its vertices and outgoing arcs
+     * If the arc is red and the end vertex is blue: +1 point
+     * If the arc is blue and the end vertex is red: -1 point
+     * @return the score
+     */
+    public int getScore(){
+        int score = 0;
+        for (HashMap.Entry<Vertex,Color> entry : outs.entrySet()){                          //We look at the outgoing arcs
+            if(entry.getValue() == Color.RED && entry.getKey().is_blue()) score =+ 1;       //if the arc is red and the end vertex is blue: +1 point
+            else if(entry.getValue() == Color.BLUE && entry.getKey().is_red()) score =- 1;  //if the arc is blue and the end vertex is red: -1 point
+        }                                                                                   //0 points for other cases
+    return score;
     }
 
 

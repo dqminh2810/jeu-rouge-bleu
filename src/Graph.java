@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -5,8 +6,12 @@ import java.util.Random;
 /**
  * Graphe orienté bi-coloré et symétrique complet
  */
-public class Graph {
+public class Graph implements Serializable {
     private ArrayList<Vertex> vertices;
+
+    public Graph(ArrayList<Vertex> vertices){
+        this.vertices = vertices;
+    }
 
     public Graph(){
         vertices = new ArrayList<>();
@@ -359,11 +364,30 @@ public class Graph {
 
     /**
      * Method allows to resolve the problem "red blue game" by using heuristic algorithm v2
-     * @return : number of arc current in graph
+     * @return : number of red vertices deleted
      */
-    public ArrayList<Vertex> resolve_heuristic_v2(){
-        return null;
-        //TODO
+    public int resolve_heuristic_v2(){
+       // Number of red vertices removed:
+        int k = 0;
+        // As long as there are red vertices:
+        while(this.get_nb_red_vertex() != 0){
+            // We get the list of red vertices:
+            ArrayList<Vertex> redOnes = this.get_red_vertex();
+            // the best red vertex to remove, by default it is the first in the list:
+            Vertex bestRed = redOnes.get(0);
+            for (Vertex red : redOnes){
+                // update the bestRed according to its score :
+                if(red.getScore() >= bestRed.getScore() ) bestRed = red;
+            }
+            // We look at the outgoing vertices of bestRed:
+            for (HashMap.Entry<Vertex,Color> entry : bestRed.getOuts().entrySet()){
+                // We modify the color of each vertex by the color of each outgoing arc
+                entry.getKey().setColor(entry.getValue());
+            }
+            // We finally remove the red vertex with the best score:
+            vertices.remove(bestRed); k++;
+        }
+        return k;
     }
 
 }
