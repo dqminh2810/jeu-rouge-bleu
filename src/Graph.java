@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 
 /**
@@ -304,45 +305,54 @@ public class Graph implements Serializable {
         /* Phase 1 */
         for(int i=0; i<vertices.size(); i++){
             /* Step (1) */
-            if(vertices.get(i).getColor()==Color.RED){
+            if(vertices.get(i).getColor()==Color.RED) {
                 boolean existed_i = false;
-                for(Vertex v: red_vertices){
-                    if(v.getName().equals(vertices.get(i).getName())){
+                for (Vertex v : red_vertices) {
+                    if (v.getName().equals(vertices.get(i).getName())) {
                         existed_i = true;
                         break;
                     }
                 }
-                if(!existed_i){
+                if (!existed_i) {
                     red_vertices.add(vertices.get(i));  // Add Red vertex to list to be deleted if it does not added
                     //System.out.println("Red vertex initial "+vertices.get(i).getName());
                 }
+            }
+        }
 
-                /* Step (2) */
-                for(int j=0; j<vertices.size(); j++) {
-                    HashMap<Color, Boolean> arcs = vertices.get(i).get_arc_color(vertices.get(j));
-                    for (HashMap.Entry<Color, Boolean> entry : arcs.entrySet()) {
-                        Color color_arc = entry.getKey();
-                        Boolean orientation_arc = entry.getValue();
-                        if(!orientation_arc){   // outgoing arc
-                            if(color_arc == Color.RED){ // and it color is RED
-                                vertices.get(j).setColor(Color.RED);    // turn the neighbour to RED
-                                boolean existed_j = false;
-                                for(Vertex v: red_vertices){
-                                    if(v.getName().equals(vertices.get(j).getName())){
-                                        existed_j = true;
-                                        break;
-                                    }
-                                }
-                                if(!existed_j){
-                                    red_vertices.add(vertices.get(j));      // add to the red vertices list if it does not added
-                                    //System.out.println("Add vertex after change color to Red "+vertices.get(j).getName());
+        /* Step (2) */
+        for(int i = 0; i<red_vertices.size(); i++){
+            Vertex current = red_vertices.get(i);
+            for (HashMap.Entry<Vertex, Color> entry_1 : current.getOuts().entrySet()) {
+                Vertex neighbor = entry_1.getKey();
+
+                HashMap<Color, Boolean> arcs = current.get_arc_color(neighbor);
+                for (HashMap.Entry<Color, Boolean> entry_2 : arcs.entrySet()) {
+                    Color color_arc = entry_2.getKey();
+                    Boolean orientation_arc = entry_2.getValue();
+                    if (!orientation_arc) {   // outgoing arc
+                        if (color_arc == Color.RED) { // and it color is RED
+                            neighbor.setColor(Color.RED);    // turn the neighbour to RED
+                            boolean existed_j = false;
+                            for (Vertex v_dup : red_vertices) {
+                                if (v_dup.getName().equals(neighbor.getName())) {
+                                    existed_j = true;
+                                    break;
                                 }
                             }
+                            if (!existed_j) {
+                                red_vertices.add(neighbor);      // add to the red vertices list if it does not added
+                                //System.out.println("Add vertex after change color to Red "+vertices.get(j).getName());
+                            }
+                        } else {    // otherwise outgoing arc color is BLUE
+                            neighbor.setColor(Color.BLUE);
+                            red_vertices.remove(neighbor);      // add to the red vertices list if it does not added
                         }
                     }
                 }
             }
         }
+
 
         /* Phase 2 */
         /* Step (3) */
