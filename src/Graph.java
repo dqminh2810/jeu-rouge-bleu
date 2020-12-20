@@ -281,11 +281,7 @@ public class Graph implements Serializable {
         this.vertices = vertices;
     }
 
-    /* ********************** */
-    /* ********************** */
-    /* * QUESTION 6 METHODS * */
-    /* ********************** */
-    /* ********************** */
+
     /**
      * Method allows to resolve the problem "red blue game" by using heuristic algorithm v1
      *  Phase 1: Find RED vertices and change his neighbours color to RED adapting to the arc color
